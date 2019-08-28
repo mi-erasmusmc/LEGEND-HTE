@@ -14,7 +14,7 @@ shinyServer(function(input, output, session){
                       inputId = "comparator",
                       choices = unique(filteredExposures$exposureName))
   })
-  
+
   resultSubset <- reactive({
     
     results <- getResults(targ = input$target,
