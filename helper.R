@@ -7,7 +7,6 @@ getResults <- function(targ,
                        anal){
   
   res <- list()
-  
   reference <- readRDS("data/map.rds")
   stratOutcomeId <- reference$idNumber[reference$label == strat]
   estOutcomeId <- reference$idNumber[reference$label == est]
