@@ -14,17 +14,17 @@ getResults <- function(targ,
   res$relative <- readRDS("data/relative.rds") %>%
     filter(target == targ & comparator == comp &
              stratOutcome == stratOutcomeId & estOutcome == estOutcomeId &
-             database == db & indication == ind & analysis == anal)
+             database %in% db & indication == ind & analysis == anal)
   
   res$absolute <- readRDS("data/absolute.rds") %>%
     filter(target == targ & comparator == comp &
              stratOutcome == stratOutcomeId & estOutcome == estOutcomeId &
-             database == db & indication == ind & analysis == anal)
+             database %in% db & indication == ind & analysis == anal)
   
   res$cases <- readRDS("data/cases.rds") %>%
     filter(target == targ & comparator == comp &
              stratOutcome == stratOutcomeId & estOutcome == estOutcomeId &
-             database == db & indication == ind & analysis == anal)
+             database %in% db & indication == ind & analysis == anal)
   
   return(res)
   
@@ -36,12 +36,12 @@ combinedPlot <- function(cases,
                          absolute){
   
   cases <-  reshape::melt(cases,
-                          id.vars = c("riskStratum"),
+                          id.vars = c("riskStratum", "database"),
                           measure.vars = c("casesComparator", "casesTarget"))
+  cases$test <- paste(cases$database, cases$variable)
   
   casesPlot <- ggplot2::ggplot(data = cases, ggplot2::aes(x = riskStratum, y = value*100)) +
-    ggplot2::geom_bar(stat = 'identity', position = ggplot2::position_dodge(), 
-                      ggplot2::aes(fill = variable), width = .5)+
+    ggplot2::geom_bar(stat = 'identity', position = ggplot2::position_dodge(), ggplot2::aes(fill = test), width = .5)+
     ggplot2::xlab('Risk Stratum') +
     ggplot2::ylab('Outcome Rate (%)') +
     ggplot2::geom_hline(yintercept = 0, size = .8) +
@@ -55,7 +55,9 @@ combinedPlot <- function(cases,
                    legend.position = 'top') + ggplot2::scale_y_reverse()
   
   rrrPlot <- ggplot2::ggplot(relative, ggplot2::aes(x = riskStratum,
-                                                    y = estimate)) +
+                                                    y = estimate,
+                                                    group = database,
+                                                    color = database)) +
     ggplot2::geom_point(size = 3,
                         position = ggplot2::position_dodge(w = .3)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin = lowerBound, ymax = upperBound),
@@ -72,7 +74,9 @@ combinedPlot <- function(cases,
                    axis.text.x = ggplot2::element_blank())
   
   arrPlot <- ggplot2::ggplot(absolute, ggplot2::aes(x = riskStratum,
-                                                    y = estimate*100)) +
+                                                    y = estimate*100,
+                                                    group = database,
+                                                    color = database)) +
     ggplot2::geom_point(size = 3,
                         position = ggplot2::position_dodge(w = .3)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin = lowerBound*100, ymax = upperBound*100),
