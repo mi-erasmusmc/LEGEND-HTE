@@ -53,7 +53,6 @@ shinyUI(
                                "Stratification Outcome", 
                                unique(outcomes$label),
                                "Total cardiovascular disease"),
-                   # Replace the choices below with only the outcomes for which risk stratification is available
                    selectInput("estOutcome", 
                                "Estimation outcome",
                                unique(outcomes$label),

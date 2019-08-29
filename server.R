@@ -1,18 +1,18 @@
 
 shinyServer(function(input, output, session){
   
-  # Not required at the moment. It updates the input options for different exposure groups
   observe({
-    indicationId <- input$indication
-    exposureGroup <- input$exposureGroup
-    filteredExposures <- exposures[exposures$indicationId == indicationId, ]
-    filteredExposures <- filteredExposures[filteredExposures$exposureGroup == exposureGroup, ]
+    stratificationOutcome <- input$stratOutcome
+    filteredEstimationOutcomes <- readRDS("data/relative.rds") %>%
+      left_join(outcomes, by = c("stratOutcome" = "idNumber")) %>%
+      filter(label == stratificationOutcome) %>%
+      select(estOutcome) %>%
+      left_join(outcomes, by = c("estOutcome" = "idNumber")) %>%
+      .$label
+    
     updateSelectInput(session = session,
-                      inputId = "target",
-                      choices = unique(filteredExposures$exposureName))
-    updateSelectInput(session = session,
-                      inputId = "comparator",
-                      choices = unique(filteredExposures$exposureName))
+                      inputId = "estOutcome",
+                      choices = unique(filteredEstimationOutcomes))
   })
 
   resultSubset <- reactive({
