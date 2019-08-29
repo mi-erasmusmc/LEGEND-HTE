@@ -33,12 +33,18 @@ getResults <- function(targ,
 
 combinedPlot <- function(cases,
                          relative,
-                         absolute){
+                         absolute,
+                         target,
+                         comparator){
   
   cases <-  reshape::melt(cases,
                           id.vars = c("riskStratum", "database", "estOutcome"),
-                          measure.vars = c("casesComparator", "casesTarget"))
-  cases$test <- paste(cases$database, cases$estOutcome, cases$variable)
+                          measure.vars = c("casesComparator", "casesTarget")) %>%
+    left_join(outcomes, by = c("estOutcome" = "idNumber")) %>%
+    mutate(variable = ifelse(variable == "casesComparator", comparator, target))
+  
+  
+  cases$test <- paste(cases$database, cases$label, cases$variable, sep = "/")
   
   casesPlot <- ggplot2::ggplot(data = cases, ggplot2::aes(x = riskStratum, y = value*100)) +
     ggplot2::geom_bar(stat = 'identity', position = ggplot2::position_dodge(), ggplot2::aes(fill = test), width = .5)+
@@ -54,7 +60,10 @@ combinedPlot <- function(cases,
                    legend.direction = 'horizontal',
                    legend.position = 'top') + ggplot2::scale_y_reverse()
   
-  relative$test <- paste(relative$estOutcome, relative$database)
+  relative <- relative %>%
+    left_join(outcomes, by = c("estOutcome" = "idNumber"))
+  
+  relative$test <- paste(relative$label, relative$database)
   
   rrrPlot <- ggplot2::ggplot(relative, ggplot2::aes(x = riskStratum,
                                                     y = estimate,
@@ -75,8 +84,12 @@ combinedPlot <- function(cases,
                    axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank())
   
-  absolute$test <- paste(absolute$estOutcome, absolute$database)
+  absolute <- absolute %>%
+    left_join(outcomes, by = c("estOutcome" = "idNumber"))
   
+  absolute$test <- paste(absolute$database, absolute$label, sep = "/")
+  
+
   arrPlot <- ggplot2::ggplot(absolute, ggplot2::aes(x = riskStratum,
                                                     y = estimate*100,
                                                     group = test,

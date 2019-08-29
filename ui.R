@@ -77,7 +77,7 @@ shinyUI(
                                tabPanel("Absolute",
                                         DT::dataTableOutput("mainTableAbsolute")),
                                tabPanel("Plot",
-                                        plotOutput("combinedPlot")))
+                                        plotOutput("combinedPlot", height = "auto")))
                  )
                ))
       

@@ -64,8 +64,12 @@ shinyServer(function(input, output, session){
     
     plot <- combinedPlot(cases = res$cases,
                          relative = res$relative,
-                         absolute = res$absolute)
+                         absolute = res$absolute,
+                         target = input$target,
+                         comparator = input$comparator)
     return(plot)
     
+  }, height = function() {
+    0.65*session$clientData$output_combinedPlot_width
   })
 })
