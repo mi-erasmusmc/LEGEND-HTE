@@ -34,7 +34,11 @@ shinyServer(function(input, output, session){
     res <- resultSubset()
     
     table <- res$relative %>%
-      select(estimate, lowerBound, upperBound, riskStratum, database) %>%
+      left_join(outcomes, by = c("stratOutcome" = "idNumber")) %>%
+      rename(stratificationOutcome = label) %>%
+      left_join(outcomes, by = c("estOutcome" = "idNumber")) %>%
+      rename(estimationOutcome = label) %>%
+      select(database, stratificationOutcome, estimationOutcome, riskStratum, estimate, lowerBound, upperBound) %>%
       datatable() %>%
       formatRound(columns= c("estimate", "lowerBound", "upperBound"), digits=2)
     
@@ -47,10 +51,14 @@ shinyServer(function(input, output, session){
     res <- resultSubset()
 
     table <- res$absolute %>%
+      left_join(outcomes, by = c("stratOutcome" = "idNumber")) %>%
+      rename(stratificationOutcome = label) %>%
+      left_join(outcomes, by = c("estOutcome" = "idNumber")) %>%
+      rename(estimationOutcome = label) %>%
+      select(database, stratificationOutcome, estimationOutcome, riskStratum, estimate, lowerBound, upperBound) %>%
       mutate(estimate = 100*estimate,
              lowerBound = 100*lowerBound,
              upperBound = 100*upperBound) %>%
-      select(estimate, lowerBound, upperBound, riskStratum, database) %>%
       datatable() %>%
       formatRound(columns= c("estimate", "lowerBound", "upperBound"), digits=2)
       
